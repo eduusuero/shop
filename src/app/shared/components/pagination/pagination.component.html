@@ -1,0 +1,21 @@
+<div class="join flex justify-center items-center mt-4 mb-10">
+
+  @for (pagina of getPageList(); track $index) {
+
+  <!--Boton de cambio de pagina
+        Utilizo routerLink para que navege a la misma pag donde me encuentro
+        esto lo hago para poder utilizar los params a continuacion sino larga error.
+  -->
+  <button class="join-item btn"
+      [class.btn-primary]="pagina === activePage()"
+
+
+      [routerLink]="[]"
+      [queryParams]="{ page: pagina }"
+
+      (click)="this.activePage.set(pagina)"
+  >
+      {{ pagina }}
+  </button>
+}
+</div>
