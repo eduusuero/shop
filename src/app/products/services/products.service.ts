@@ -58,7 +58,7 @@ export class ProductsService {
 
     return this.http.get<Product>(`${baseUrl}/products/${ idSlug }`)
     .pipe(
-      delay(2000), //ESTE ES PARA VERIFICAR EN PANTALLA CUANDO CARGA Y CUANDO LO TIENE EN CACHE
+      delay(1000), //ESTE ES PARA VERIFICAR EN PANTALLA CUANDO CARGA Y CUANDO LO TIENE EN CACHE
       tap( product => this.productCache.set(idSlug, product)),
     )
   }
