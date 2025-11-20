@@ -1,7 +1,13 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { User } from '@auth/interfaces/user.interfaces';
+import { environment } from 'src/environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { AuthResponse } from '@auth/interfaces/auth-response.interface';
+import { catchError, map, Observable, of, tap } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
+const baseUrl = environment.baseUrl;
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -10,6 +16,16 @@ export class AuthService {
 
   private _user = signal<User|null>(null);
   private _token = signal<string|null>(null);
+
+  private http = inject(HttpClient);
+
+
+  //Este metodo se dispara apenas se inyecta el servicio
+  //por lo tanto llamo al metodo checkStatus para ver si
+  //ya tengo autenticado el usuario.
+  checkStatusResource = rxResource({
+    loader: () => this.checkStatus(),
+  });
 
 
   authStatus = computed<AuthStatus>(() => {
@@ -23,6 +39,63 @@ export class AuthService {
   });
 
   user = computed(() => this._user());
-
   token = computed(this._token);
+
+  login( email: string, password: string ):Observable<boolean>{
+
+    return this.http.post<AuthResponse>(`${ baseUrl }/auth/login`,{
+      email: email,
+      password: password,
+    }).pipe(
+      tap( resp => {
+        this._user.set(resp.user);
+        this._authStatus.set('authenticated');
+        this._token.set(resp.token);
+
+        localStorage.setItem('token',resp.token);
+      }),
+      map( () => true),
+      catchError((error:any) =>{
+        this._user.set(null);
+        this._token.set(null);
+        this._authStatus.set('not-authenticated');
+        return of(false);
+      })
+    )
+  }
+
+  checkStatus():Observable<boolean>{
+
+    const token =  localStorage.getItem('token');
+
+    //Si no tengo token es que no esta logeado.
+    if(!token){
+      return of(false);
+    }
+
+    //Si tengo token tengo que verificarlo
+    return this.http.get<AuthResponse>(`${ baseUrl }/auth/check-status`, {
+      headers:{
+        Authorization: `Bearer ${ token }`,
+      }
+    }).pipe(
+            tap( resp => {
+        this._user.set(resp.user);
+        this._authStatus.set('authenticated');
+        this._token.set(resp.token);
+
+        localStorage.setItem('token',resp.token);
+      }),
+      map( () => true),
+      catchError((error:any) =>{
+        this._user.set(null);
+        this._token.set(null);
+        this._authStatus.set('not-authenticated');
+        return of(false);
+      })
+    )
+
+  }
+
+
 }
