@@ -47,20 +47,8 @@ export class AuthService {
       email: email,
       password: password,
     }).pipe(
-      tap( resp => {
-        this._user.set(resp.user);
-        this._authStatus.set('authenticated');
-        this._token.set(resp.token);
-
-        localStorage.setItem('token',resp.token);
-      }),
-      map( () => true),
-      catchError((error:any) =>{
-        this._user.set(null);
-        this._token.set(null);
-        this._authStatus.set('not-authenticated');
-        return of(false);
-      })
+      map( resp => this.handleAuthSucess(resp) ),
+      catchError((error:any) => this.handleAuthError(error))
     )
   }
 
@@ -70,6 +58,7 @@ export class AuthService {
 
     //Si no tengo token es que no esta logeado.
     if(!token){
+      this.logout();
       return of(false);
     }
 
@@ -79,23 +68,34 @@ export class AuthService {
         Authorization: `Bearer ${ token }`,
       }
     }).pipe(
-            tap( resp => {
+      map( resp => this.handleAuthSucess(resp) ),
+      catchError((error:any) => this.handleAuthError(error))
+    )
+
+  }
+
+  logout(){
+    this._user.set(null);
+    this._authStatus.set('not-authenticated');
+    this._token.set(null);
+
+    localStorage.removeItem('token');
+
+  }
+
+  private handleAuthSucess( resp: AuthResponse){
         this._user.set(resp.user);
         this._authStatus.set('authenticated');
         this._token.set(resp.token);
 
         localStorage.setItem('token',resp.token);
-      }),
-      map( () => true),
-      catchError((error:any) =>{
-        this._user.set(null);
-        this._token.set(null);
-        this._authStatus.set('not-authenticated');
-        return of(false);
-      })
-    )
 
+        return true;
   }
 
+  private handleAuthError( error: any ){
+    this.logout();
+    return of(false);
+  }
 
 }
