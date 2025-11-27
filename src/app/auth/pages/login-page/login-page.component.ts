@@ -52,6 +52,11 @@ export class LoginPageComponent {
     });
   }
 
+  //Check autentication
+
+  //Registro
+
+  //Logout
 }
 
 
