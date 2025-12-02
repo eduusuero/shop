@@ -41,6 +41,9 @@ export class AuthService {
   user = computed(() => this._user());
   token = computed(this._token);
 
+  //Obtengo true si tiene el rol de admin, false en caso contrario
+  isAdmin = computed( () => this._user()?.roles.includes('admin') ?? false )
+
   login( email: string, password: string ):Observable<boolean>{
 
     return this.http.post<AuthResponse>(`${ baseUrl }/auth/login`,{

@@ -1,0 +1,14 @@
+
+
+@if ( productResource.isLoading()) {
+  <!--Spiner-->
+  <div class="flex justify-center items-center h-screen">
+    <span class="loading loadgin loading-lg"></span>
+  </div>
+}
+
+<!---->
+
+@if ( productResource.hasValue()) {
+  <h1>{{ productResource.value().title }} </h1>
+}

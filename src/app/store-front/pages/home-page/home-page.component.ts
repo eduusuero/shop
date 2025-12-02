@@ -17,7 +17,7 @@ export class HomePageComponent {
 
   productsService = inject(ProductsService);
 
-  paginationService = inject(PaginationService)
+  paginationService = inject(PaginationService);
   // activatedRoute = inject(ActivatedRoute);
 
   // currentPage = toSignal(
