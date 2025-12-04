@@ -10,5 +10,6 @@
 <!---->
 
 @if ( productResource.hasValue()) {
-  <h1>{{ productResource.value().title }} </h1>
+
+  <product-details [product]="productResource.value()!"/>
 }
