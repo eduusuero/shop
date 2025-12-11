@@ -45,6 +45,23 @@ export class ProductDetails implements OnInit{
     this.productForm.patchValue({ tags: formLike.tags?.join(',')});
   }
 
+  onSizeCliked( size: string ){
+
+    //Obtengo todas las tallas de ese producto.
+    const currentSizes = this.productForm.value.sizes ?? [];
+
+    //Si la talla ya esta incluida es xq presiono para sacarla
+    if( currentSizes.includes(size)){
+
+      currentSizes.splice( currentSizes.indexOf(size), 1 );
+    }
+    //Si no existe, lo agregamos
+    else {
+      currentSizes.push(size);
+    }
+    this.productForm.patchValue({sizes: currentSizes });
+  }
+
 
   onSubmit(){
     console.log(this.productForm.value);
